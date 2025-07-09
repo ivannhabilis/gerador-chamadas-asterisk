@@ -4,8 +4,11 @@ Este projeto consiste em uma interface web simples, construída em PHP, para fac
 
 A ferramenta permite que um usuário, sem acesso direto ao servidor, possa agendar chamadas a partir de uma lista de contatos (via upload de arquivo CSV) ou de uma entrada manual, selecionando o áudio a ser tocado e o tronco de saída a ser utilizado.
 
+**Importante:** A versão mais recente integra-se com o sistema de autenticação do FreePBX/IncrediblePBX para garantir que apenas usuários logados possam acessar a página.
+
 ## Funcionalidades
 
+-   **Acesso Seguro:** A página é protegida e só pode ser acessada por administradores autenticados no painel do PBX.
 -   **Múltiplas Fontes de Contato:**
     -   Importação em massa via arquivo `.csv`.
     -   Entrada manual de um único contato.
@@ -17,7 +20,6 @@ A ferramenta permite que um usuário, sem acesso direto ao servidor, possa agend
 -   **Estrutura Segura e Organizada:**
     -   Separação da lógica da aplicação (`campanha.php`) das configurações sensíveis (`config.php`).
     -   Sanitização de entradas para prevenir ataques básicos (XSS).
--   **Facilidade de Uso:** Interface web intuitiva que não exige conhecimento técnico em Asterisk para ser operada.
 
 ---
 
@@ -48,39 +50,11 @@ cd campanhas/
 
 # Agora, coloque os arquivos 'campanha.php' e 'config.php' aqui.
 # Você pode fazer isso via git clone, scp, ftp ou criando os arquivos manualmente.
-# Exemplo criando os arquivos:
-sudo nano config.php 
-# (cole o conteúdo do arquivo de configuração e salve)
-
-sudo nano campanha.php
-# (cole o conteúdo do script principal e salve)
 ```
 
 ### Passo 2: Configurar o `config.php`
 
-Edite o arquivo `config.php` com as informações do seu ambiente.
-
-```php
-// Exemplo de configuração em config.php
-
-// Diretório de spool do Asterisk
-$spool_dir = '/var/spool/asterisk/outgoing/';
-
-// Diretório dos seus áudios customizados
-$sounds_dir = '/var/lib/asterisk/sounds/pt_BR/custom/';
-
-// Troncos disponíveis para seleção
-$available_trunks = [
-    'PJSIP/SeuTroncoVoIP' => 'Tronco Principal (VoIP)',
-    'PJSIP/gvsip' => 'Rota Google Voice',
-];
-
-// Contexto do Asterisk
-$call_context = 'from-internal';
-
-// Caller ID padrão
-$default_caller_id = '"Sua Empresa" <03030000000>';
-```
+Edite o arquivo `config.php` com as informações do seu ambiente. Este arquivo contém os caminhos de diretórios, troncos e o Caller ID padrão.
 
 ### Passo 3: Preparar os Áudios
 
@@ -90,10 +64,8 @@ Certifique-se de que seus áudios de campanha existem no diretório especificado
 # Crie o diretório se ele não existir
 sudo mkdir -p /var/lib/asterisk/sounds/pt_BR/custom
 
-# Copie seus arquivos de áudio para o diretório
+# Copie seus arquivos de áudio e ajuste as permissões
 sudo cp /caminho/do/seu/audio.wav /var/lib/asterisk/sounds/pt_BR/custom/
-
-# Ajuste as permissões
 sudo chown -R asterisk:asterisk /var/lib/asterisk/sounds/pt_BR/custom
 ```
 
@@ -138,16 +110,10 @@ sudo chmod -R 755 /var/www/html/campanhas
 ## Como Usar
 
 1.  Acesse a página no seu navegador: `http://SEU_IP_DO_SERVIDOR/campanhas/campanha.php`.
-2.  **Para importar um CSV:**
-    -   Clique em "Baixar modelo de CSV" para ver o formato correto.
-    -   Clique em "Escolher arquivo" e selecione seu CSV.
-3.  **Para discagem manual:**
-    -   Deixe o campo de arquivo vazio e preencha os campos de nome e telefone.
-4.  Selecione o **Tronco de Saída** e o **Áudio para Tocar**.
-5.  Verifique se o **Caller ID** está correto.
-6.  Clique em **"Iniciar Campanha"**.
-
-A página mostrará uma mensagem de sucesso para cada chamada agendada. Você pode monitorar a atividade em tempo real na CLI do Asterisk com `sudo asterisk -rvvv`.
+2.  Se você não estiver logado no painel do IncrediblePBX, será redirecionado para a página de login. Faça o login com suas credenciais de administrador.
+3.  Após o login, você será direcionado para a página do gerador de campanhas.
+4.  Siga as opções na tela para importar um CSV ou digitar um contato, selecionar áudio, tronco e Caller ID.
+5.  Clique em **"Iniciar Campanha"**.
 
 <div align="center">
   <img src="image.png" alt="pagina_config_campanha">
@@ -158,4 +124,4 @@ A página mostrará uma mensagem de sucesso para cada chamada agendada. Você po
 ## ⚠️ Aviso Legal e de Segurança
 
 -   **Uso Responsável:** O uso de sistemas de discagem automática para telemarketing é estritamente regulamentado. No Brasil, a **Lei Geral de Proteção de Dados (LGPD)** e as regras da **ANATEL** (como o prefixo **0303** para chamadas de oferta de produtos e serviços) devem ser seguidas. O uso indevido desta ferramenta é de sua inteira responsabilidade e pode resultar em penalidades severas.
--   **Segurança:** Este script foi desenvolvido para ser uma ferramenta interna. Recomenda-se fortemente proteger o acesso ao diretório da aplicação (ex: `/campanhas`) com autenticação (`.htaccess`) ou restrição de IP para evitar o uso não autorizado.
+-   **Segurança de Acesso:** A proteção de acesso agora é gerenciada pelo próprio framework do FreePBX/IncrediblePBX. A página só pode ser acessada por usuários autenticados, tornando o uso de `.htaccess` para proteção de senha redundante para este propósito.
