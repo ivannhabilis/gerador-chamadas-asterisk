@@ -149,7 +149,9 @@ sudo chmod -R 755 /var/www/html/campanhas
 
 A página mostrará uma mensagem de sucesso para cada chamada agendada. Você pode monitorar a atividade em tempo real na CLI do Asterisk com `sudo asterisk -rvvv`.
 
-![pagina_config_campanha](https://github.com/ivannhabilis/gerador-chamadas-asterisk/blob/main/image.png)
+<div align="center">
+  <img src="image.png" alt="pagina_config_campanha">
+</div>
 
 ---
 
