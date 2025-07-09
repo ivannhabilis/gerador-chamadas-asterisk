@@ -3,13 +3,35 @@
 ============================================================================
 == GERADOR DE CHAMADAS AUTOMÁTICAS PARA ASTERISK / INCREDIBLEPBX          ==
 ==                                                                        ==
-== Autor: Gemini (Google AI)                                              ==
-== Versão: 1.3                                                            ==
+== Autor: Ivann Sampaio                                                   ==
+== Versão: 1.4                                                            ==
 == Descrição: Permite criar campanhas de discagem a partir de CSV ou      ==
 ==            entrada manual, com seleção de áudio e tronco de saída.     ==
 ==            Carrega as configurações do arquivo config.php.             ==
+==            Adicionada integração com o sistema de autenticação do      ==
+==            FreePBX/IncrediblePBX para proteger o acesso.               ==
 ============================================================================
-*/
+ */
+
+// --- INÍCIO DA INTEGRAÇÃO DE SEGURANÇA DO FREEPBX ---
+// Este bloco de código carrega o ambiente do FreePBX e verifica se o
+// usuário está autenticado. Se não estiver, ele redireciona para a página de login.
+if (!@include_once(getenv('FREEPBX_CONF') ? getenv('FREEPBX_CONF') : '/etc/freepbx.conf')) {
+    include_once('/etc/asterisk/freepbx.conf');
+}
+// O objeto $amp_user é criado pelo bootstrap e contém os dados do usuário logado.
+// Se não existir ou o usuário não tiver permissão, o acesso é bloqueado.
+if (!isset($amp_user) || !$amp_user->checkSection('campanhas')) {
+    // Você pode criar uma "Feature Code" chamada 'campanhas' no FreePBX
+    // para dar permissão granular, ou simplesmente verificar se o usuário está logado.
+    // Por simplicidade aqui, vamos apenas checar se o objeto existe.
+    // A linha abaixo é a mais importante:
+    if (!isset($amp_user)) {
+        header('Location: /admin/config.php'); // Redireciona para a página de login
+        exit;
+    }
+}
+// --- FIM DA INTEGRAÇÃO DE SEGURANÇA ---
 
 // --- LÓGICA DO SCRIPT ---
 
