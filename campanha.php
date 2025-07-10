@@ -4,7 +4,7 @@
 == GERADOR DE CHAMADAS AUTOMÁTICAS PARA ASTERISK / INCREDIBLEPBX          ==
 ==                                                                        ==
 == Autor: Ivann Sampaio                                                   ==
-== Versão: 1.4                                                            ==
+== Versão: 1.6                                                            ==
 == Descrição: Permite criar campanhas de discagem a partir de CSV ou      ==
 ==            entrada manual, com seleção de áudio e tronco de saída.     ==
 ==            Carrega as configurações do arquivo config.php.             ==
@@ -13,23 +13,16 @@
 ============================================================================
  */
 
-// --- INÍCIO DA INTEGRAÇÃO DE SEGURANÇA DO FREEPBX ---
-// Este bloco de código carrega o ambiente do FreePBX e verifica se o
-// usuário está autenticado. Se não estiver, ele redireciona para a página de login.
-if (!@include_once(getenv('FREEPBX_CONF') ? getenv('FREEPBX_CONF') : '/etc/freepbx.conf')) {
-    include_once('/etc/asterisk/freepbx.conf');
-}
-// O objeto $amp_user é criado pelo bootstrap e contém os dados do usuário logado.
-// Se não existir ou o usuário não tiver permissão, o acesso é bloqueado.
-if (!isset($amp_user) || !$amp_user->checkSection('campanhas')) {
-    // Você pode criar uma "Feature Code" chamada 'campanhas' no FreePBX
-    // para dar permissão granular, ou simplesmente verificar se o usuário está logado.
-    // Por simplicidade aqui, vamos apenas checar se o objeto existe.
-    // A linha abaixo é a mais importante:
-    if (!isset($amp_user)) {
-        header('Location: /admin/config.php'); // Redireciona para a página de login
-        exit;
-    }
+// --- INÍCIO DA INTEGRAÇÃO DE SEGURANÇA (BASEADO EM SESSÃO) ---
+// É crucial iniciar a sessão para poder ler as variáveis de login do FreePBX.
+session_start();
+
+// O FreePBX/IncrediblePBX cria a variável de sessão 'AMP_user' quando um administrador está logado.
+// Verificamos se essa variável de sessão existe. Se não, o usuário não está autenticado.
+if (!isset($_SESSION['AMP_user'])) {
+    // Se não estiver logado, redireciona para a página de login do painel de administração.
+    header('Location: /admin/config.php');
+    exit; // Interrompe a execução do script para garantir que nada mais seja processado.
 }
 // --- FIM DA INTEGRAÇÃO DE SEGURANÇA ---
 
